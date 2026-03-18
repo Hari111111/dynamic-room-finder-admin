@@ -1,0 +1,331 @@
+.adminShell,
+.authShell {
+  min-height: 100vh;
+  padding: 24px;
+  color: #162033;
+}
+
+.adminHero,
+.sidebar,
+.editorPanel,
+.notice,
+.authPanel {
+  border: 1px solid rgba(22, 32, 51, 0.08);
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 24px 70px rgba(24, 32, 52, 0.08);
+  backdrop-filter: blur(16px);
+}
+
+.adminHero,
+.authPanel {
+  display: grid;
+  gap: 20px;
+  padding: 28px;
+  border-radius: 28px;
+}
+
+.adminHero {
+  grid-template-columns: minmax(0, 1.4fr) minmax(320px, 0.9fr);
+}
+
+.authPanel {
+  width: min(560px, 100%);
+  margin: 0 auto;
+}
+
+.eyebrow {
+  margin-bottom: 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #b45f17;
+}
+
+.adminHero h1,
+.authPanel h1 {
+  max-width: 14ch;
+  font-size: clamp(2.2rem, 4vw, 4.3rem);
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+  margin: 0;
+}
+
+.heroCopy {
+  max-width: 58ch;
+  margin-top: 16px;
+  color: #596780;
+  line-height: 1.7;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.statsGrid article {
+  border-radius: 20px;
+  padding: 18px;
+  background: linear-gradient(180deg, rgba(24, 46, 84, 0.96), rgba(33, 99, 104, 0.92));
+  color: #ecf4ff;
+}
+
+.statsGrid span {
+  color: rgba(236, 244, 255, 0.72);
+}
+
+.statsGrid strong {
+  display: block;
+  margin-top: 10px;
+  font-size: 1.5rem;
+}
+
+.notice {
+  margin-top: 18px;
+  padding: 14px 18px;
+  border-radius: 18px;
+}
+
+.error {
+  color: #a73a2d;
+  background: rgba(255, 243, 241, 0.92);
+}
+
+.success {
+  color: #1b6c51;
+  background: rgba(238, 255, 247, 0.92);
+}
+
+.adminLayout {
+  display: grid;
+  grid-template-columns: minmax(300px, 0.8fr) minmax(0, 1.6fr);
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.sidebar,
+.editorPanel {
+  border-radius: 28px;
+  padding: 20px;
+}
+
+.sidebar {
+  display: grid;
+  gap: 18px;
+  align-content: start;
+}
+
+.sidebarHeader,
+.editorTop,
+.placesHeader,
+.formActions {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+}
+
+.sidebarHeader h2,
+.editorTop h2,
+.placesHeader h3 {
+  margin: 0;
+  font-size: 1.8rem;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.roomList,
+.editorForm,
+.placesList,
+.authForm {
+  display: grid;
+  gap: 18px;
+}
+
+.roomRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: center;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(31, 42, 64, 0.08);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(243, 246, 250, 0.9));
+  text-align: left;
+  cursor: pointer;
+}
+
+.roomRowActive {
+  border-color: rgba(29, 87, 144, 0.24);
+}
+
+.roomRow strong,
+.roomRow span,
+.roomRow small {
+  display: block;
+}
+
+.roomRow span,
+.roomRow small {
+  color: #61708a;
+}
+
+.editorPanel {
+  display: grid;
+  gap: 20px;
+}
+
+.formGridTwo,
+.formGridThree,
+.formGridFour {
+  display: grid;
+  gap: 14px;
+}
+
+.formGridTwo {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.formGridThree {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.formGridFour {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.editorForm label,
+.authForm label {
+  display: grid;
+  gap: 8px;
+}
+
+.editorForm span,
+.authForm span {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #495771;
+}
+
+.editorForm input,
+.editorForm select,
+.editorForm textarea,
+.authForm input {
+  width: 100%;
+  padding: 13px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(31, 42, 64, 0.12);
+  background: rgba(255, 255, 255, 0.92);
+  color: #162033;
+  font: inherit;
+}
+
+.checkboxRow {
+  display: flex !important;
+  align-items: center;
+  gap: 12px !important;
+}
+
+.checkboxRow input {
+  width: 18px;
+  height: 18px;
+}
+
+.placesSection {
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+  border-radius: 24px;
+  background: rgba(243, 247, 252, 0.82);
+}
+
+.placeEditor {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.primaryButton,
+.ghostButton,
+.dangerButton,
+.textButton,
+.authTab,
+.authTabActive {
+  border-radius: 999px;
+  padding: 12px 18px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primaryButton {
+  background: linear-gradient(135deg, #143c70, #1f847d);
+  color: #eff7ff;
+}
+
+.ghostButton,
+.authTab {
+  background: rgba(238, 242, 248, 0.92);
+  color: #23324e;
+}
+
+.dangerButton,
+.textButton {
+  color: #9e3125;
+}
+
+.dangerButton {
+  background: rgba(185, 56, 44, 0.12);
+}
+
+.textButton {
+  padding: 0;
+  background: transparent;
+  justify-self: start;
+}
+
+.authTabs {
+  display: flex;
+  gap: 10px;
+}
+
+.authTabActive {
+  background: #172c52;
+  color: #eef6ff;
+}
+
+@media (max-width: 1180px) {
+  .adminHero,
+  .adminLayout,
+  .formGridTwo,
+  .formGridThree,
+  .formGridFour,
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .adminShell,
+  .authShell {
+    padding: 14px;
+  }
+
+  .adminHero,
+  .sidebar,
+  .editorPanel,
+  .authPanel {
+    border-radius: 22px;
+    padding: 16px;
+  }
+
+  .sidebarHeader,
+  .editorTop,
+  .placesHeader,
+  .formActions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
