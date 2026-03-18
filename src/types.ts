@@ -10,6 +10,8 @@ export type NearbyPlace = {
 
 export type Room = {
   _id: string;
+  ownerId: string;
+  ownerName: string;
   title: string;
   city: string;
   locality: string;
@@ -38,14 +40,27 @@ export type AuthUser = {
   id: string;
   name: string;
   email: string;
-  role: 'user' | 'admin';
+  mobileNumber?: string;
+  role: 'user' | 'admin' | 'superadmin';
+  approvalStatus: 'pending' | 'approved' | 'rejected';
 };
 
 export type AdminSummary = {
   totalRooms: number;
   featuredRooms: number;
   avgPrice: number;
-  totalUsers: number;
-  admins: number;
+  totalMembers: number;
+  pendingApprovals: number;
   cities: string[];
+};
+
+export type AdminMember = {
+  id: string;
+  name: string;
+  email: string;
+  mobileNumber?: string;
+  role: 'admin' | 'superadmin';
+  approvalStatus: 'pending' | 'approved' | 'rejected';
+  approvedBy: string | null;
+  createdAt: string;
 };

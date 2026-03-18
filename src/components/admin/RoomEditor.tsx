@@ -30,6 +30,7 @@ type Props = {
   selectedRoom: Room | null;
   form: RoomForm;
   saving: boolean;
+  currentUserRole: 'admin' | 'superadmin';
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
   onDelete: () => void;
   onChange: <K extends keyof RoomForm>(key: K, value: RoomForm[K]) => void;
@@ -42,6 +43,7 @@ export function RoomEditor({
   selectedRoom,
   form,
   saving,
+  currentUserRole,
   onSubmit,
   onDelete,
   onChange,
@@ -58,6 +60,9 @@ export function RoomEditor({
           <p className={styles.editorLead}>
             Shape the public-facing card, detail view, and nearby place highlights from one form.
           </p>
+          {selectedRoom && currentUserRole === 'superadmin' ? (
+            <p className={styles.ownerNote}>Owned by {selectedRoom.ownerName}</p>
+          ) : null}
         </div>
 
         {selectedRoom ? (

@@ -1,19 +1,27 @@
 import { useEffect, useMemo, useState } from 'react';
 import { apiRequest } from './lib/api';
 import { ADMIN_AUTH_STORAGE_KEY } from './lib/auth-storage';
-import type { AdminSummary, AuthUser, NearbyPlace, Room } from './types';
+import type { AdminMember, AdminSummary, AuthUser, NearbyPlace, Room } from './types';
 import { AdminAuthCard } from './components/admin/AdminAuthCard';
 import { AdminSidebar } from './components/admin/AdminSidebar';
 import { RoomEditor, type RoomForm } from './components/admin/RoomEditor';
 import styles from './components/admin/admin.module.css';
 
-type RoomsResponse = {
+type DashboardResponse = {
+  summary: AdminSummary;
   rooms: Room[];
+  members: AdminMember[];
 };
 
-type SummaryResponse = {
-  summary: AdminSummary;
-  latestRooms: Room[];
+type LoginResponse = {
+  token: string;
+  user: AuthUser;
+};
+
+type SignupResponse = {
+  token?: string;
+  user?: AuthUser;
+  message?: string;
 };
 
 function emptyForm(): RoomForm {
@@ -82,6 +90,7 @@ function App() {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<AuthUser | null>(null);
   const [rooms, setRooms] = useState<Room[]>([]);
+  const [members, setMembers] = useState<AdminMember[]>([]);
   const [summary, setSummary] = useState<AdminSummary | null>(null);
   const [selectedRoomId, setSelectedRoomId] = useState('new');
   const [form, setForm] = useState<RoomForm>(emptyForm);
@@ -109,13 +118,14 @@ function App() {
   async function hydrateAdmin(nextToken: string) {
     const authResponse = await apiRequest<{ user: AuthUser }>('/api/auth/me', { token: nextToken });
 
-    if (authResponse.user.role !== 'admin') {
-      throw new Error('This account is not an admin.');
+    if (!['admin', 'superadmin'].includes(authResponse.user.role)) {
+      throw new Error('This account does not have admin console access.');
     }
 
     setUser(authResponse.user);
     setToken(nextToken);
     window.localStorage.setItem(ADMIN_AUTH_STORAGE_KEY, JSON.stringify({ token: nextToken }));
+    return authResponse.user;
   }
 
   async function loadDashboard(activeToken = token) {
@@ -128,13 +138,10 @@ function App() {
     setError('');
 
     try {
-      const [roomsResponse, summaryResponse] = await Promise.all([
-        apiRequest<RoomsResponse>('/api/rooms', { token: activeToken }),
-        apiRequest<SummaryResponse>('/api/admin/summary', { token: activeToken }),
-      ]);
-
-      setRooms(roomsResponse.rooms);
-      setSummary(summaryResponse.summary);
+      const response = await apiRequest<DashboardResponse>('/api/admin/dashboard', { token: activeToken });
+      setRooms(response.rooms);
+      setMembers(response.members);
+      setSummary(response.summary);
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'Unable to load admin data.');
     } finally {
@@ -148,7 +155,14 @@ function App() {
     }
 
     hydrateAdmin(token)
-      .then(() => loadDashboard(token))
+      .then((nextUser) => {
+        if (nextUser.approvalStatus === 'approved') {
+          return loadDashboard(token);
+        }
+
+        setLoading(false);
+        return undefined;
+      })
       .catch((requestError) => {
         setError(requestError instanceof Error ? requestError.message : 'Unable to authenticate.');
         setToken(null);
@@ -175,18 +189,27 @@ function App() {
     [rooms, selectedRoomId],
   );
 
+  const pendingMembers = useMemo(
+    () => members.filter((member) => member.role === 'admin' && member.approvalStatus === 'pending'),
+    [members],
+  );
+
   async function login(payload: { email: string; password: string }) {
-    const response = await apiRequest<{ token: string; user: AuthUser }>('/api/auth/login', {
+    const response = await apiRequest<LoginResponse>('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify(payload),
     });
 
-    await hydrateAdmin(response.token);
-    await loadDashboard(response.token);
+    const nextUser = await hydrateAdmin(response.token);
+    if (nextUser.approvalStatus === 'approved') {
+      await loadDashboard(response.token);
+    } else {
+      setLoading(false);
+    }
   }
 
-  async function signup(payload: { name: string; email: string; password: string; inviteCode: string }) {
-    const response = await apiRequest<{ token: string; user: AuthUser }>('/api/auth/signup', {
+  async function signup(payload: { name: string; email: string; mobileNumber: string; password: string }) {
+    const response = await apiRequest<SignupResponse>('/api/auth/signup', {
       method: 'POST',
       body: JSON.stringify({
         ...payload,
@@ -194,17 +217,34 @@ function App() {
       }),
     });
 
-    await hydrateAdmin(response.token);
-    await loadDashboard(response.token);
+    if (!response.token || !response.user) {
+      return {
+        message: response.message ?? 'Registration submitted for superadmin approval.',
+        requiresApproval: true,
+      };
+    }
+
+    const nextUser = await hydrateAdmin(response.token);
+    if (nextUser.approvalStatus === 'approved') {
+      await loadDashboard(response.token);
+    }
+
+    return {
+      requiresApproval: false,
+    };
   }
 
   function logout() {
     setToken(null);
     setUser(null);
     setRooms([]);
+    setMembers([]);
     setSummary(null);
     setSelectedRoomId('new');
     setForm(emptyForm());
+    setError('');
+    setStatus('');
+    setLoading(false);
     window.localStorage.removeItem(ADMIN_AUTH_STORAGE_KEY);
   }
 
@@ -291,24 +331,93 @@ function App() {
     }
   }
 
+  async function handleApproval(memberId: string, approvalStatus: 'approved' | 'rejected') {
+    if (!token) {
+      return;
+    }
+
+    setSaving(true);
+    setStatus('');
+    setError('');
+
+    try {
+      await apiRequest<{ message: string }>(`/api/admin/users/${memberId}/approval`, {
+        method: 'PATCH',
+        token,
+        body: JSON.stringify({ status: approvalStatus }),
+      });
+
+      await loadDashboard(token);
+      setStatus(
+        approvalStatus === 'approved'
+          ? 'Admin access approved successfully.'
+          : 'Admin registration rejected successfully.',
+      );
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : 'Unable to update approval status.');
+    } finally {
+      setSaving(false);
+    }
+  }
+
   if (!user) {
     return <AdminAuthCard onLogin={login} onSignup={signup} />;
   }
+
+  if (user.approvalStatus !== 'approved') {
+    return (
+      <section className={styles.authShell}>
+        <div className={styles.authPanel}>
+          <div>
+            <p className={styles.eyebrow}>Access status</p>
+            <h1>
+              {user.approvalStatus === 'rejected'
+                ? 'Your admin registration was rejected.'
+                : 'Your registration is waiting for superadmin approval.'}
+            </h1>
+            <p className={styles.heroCopy}>
+              Signed in as {user.name}. Once approved, you will be able to create and manage only the rooms you own.
+            </p>
+          </div>
+          <div className={styles.statusCardGrid}>
+            <article>
+              <span>Account role</span>
+              <strong>{user.role}</strong>
+            </article>
+            <article>
+              <span>Approval status</span>
+              <strong>{user.approvalStatus}</strong>
+            </article>
+          </div>
+          <button className={styles.ghostButton} type="button" onClick={logout}>
+            Logout
+          </button>
+        </div>
+      </section>
+    );
+  }
+
+  const consoleRole: 'admin' | 'superadmin' = user.role === 'superadmin' ? 'superadmin' : 'admin';
 
   return (
     <main className={styles.adminShell}>
       <section className={styles.adminHero}>
         <div className={styles.heroContent}>
-          <p className={styles.eyebrow}>Admin console</p>
+          <p className={styles.eyebrow}>{consoleRole === 'superadmin' ? 'Superadmin console' : 'Admin console'}</p>
           <div className={styles.heroBadgeRow}>
-            <span>Live sync</span>
-            <span>Live inventory</span>
-            <span>Curated public listings</span>
+            <span>{consoleRole === 'superadmin' ? 'Global oversight' : 'My room inventory'}</span>
+            <span>{consoleRole === 'superadmin' ? 'Approve admin access' : 'Owner-scoped access'}</span>
+            <span>Live room workspace</span>
           </div>
-          <h1>Manage room listings, nearby famous places, and live availability.</h1>
+          <h1>
+            {consoleRole === 'superadmin'
+              ? 'Approve admins and oversee every room listing from one workspace.'
+              : 'Manage only the room listings you create and keep availability current.'}
+          </h1>
           <p className={styles.heroCopy}>
-            Logged in as {user.name}. This dashboard updates the same live data used by the public
-            room finder.
+            Logged in as {user.name}. {consoleRole === 'superadmin'
+              ? 'You can approve new admin registrations and manage all room inventory.'
+              : 'You can create, update, and delete only the rooms owned by your account.'}
           </p>
           <div className={styles.heroMetaGrid}>
             <article>
@@ -327,7 +436,7 @@ function App() {
 
         <div className={styles.statsGrid}>
           <article>
-            <span>Total rooms</span>
+            <span>{consoleRole === 'superadmin' ? 'Total rooms' : 'My rooms'}</span>
             <strong>{summary?.totalRooms ?? 0}</strong>
           </article>
           <article>
@@ -335,12 +444,12 @@ function App() {
             <strong>{summary?.featuredRooms ?? 0}</strong>
           </article>
           <article>
-            <span>Total users</span>
-            <strong>{summary?.totalUsers ?? 0}</strong>
+            <span>{consoleRole === 'superadmin' ? 'Team members' : 'My role'}</span>
+            <strong>{consoleRole === 'superadmin' ? summary?.totalMembers ?? 0 : 'Admin'}</strong>
           </article>
           <article>
-            <span>Admins</span>
-            <strong>{summary?.admins ?? 0}</strong>
+            <span>{consoleRole === 'superadmin' ? 'Pending approvals' : 'Status'}</span>
+            <strong>{consoleRole === 'superadmin' ? summary?.pendingApprovals ?? 0 : user.approvalStatus}</strong>
           </article>
         </div>
       </section>
@@ -354,20 +463,94 @@ function App() {
           <strong>{selectedRoom ? `Editing ${selectedRoom.title}` : 'Preparing a new room draft'}</strong>
         </div>
         <div>
+          <p className={styles.sectionLabel}>Permissions</p>
+          <strong>{consoleRole === 'superadmin' ? 'Can manage all rooms and users' : 'Can manage only owned rooms'}</strong>
+        </div>
+        <div>
           <p className={styles.sectionLabel}>Visibility</p>
           <strong>{selectedRoom?.featured ? 'Featured on frontend' : 'Standard listing'}</strong>
         </div>
-        <div>
-          <p className={styles.sectionLabel}>Availability</p>
-          <strong>{selectedRoom ? `${selectedRoom.seatsLeft} seats left` : `${rooms.length} rooms in inventory`}</strong>
-        </div>
       </section>
+
+      {consoleRole === 'superadmin' ? (
+        <section className={styles.approvalPanel}>
+          <div className={styles.approvalPanelHeader}>
+            <div>
+              <p className={styles.eyebrow}>Access approvals</p>
+              <h2>{pendingMembers.length} pending admin request{pendingMembers.length === 1 ? '' : 's'}</h2>
+            </div>
+            <p className={styles.heroCopy}>Approve trusted admins so they can manage only their own room inventory.</p>
+          </div>
+
+          <div className={styles.memberList}>
+            {pendingMembers.length === 0 ? (
+              <div className={styles.emptyApprovalState}>No pending admin approvals right now.</div>
+            ) : (
+              pendingMembers.map((member) => (
+                <article key={member.id} className={styles.memberCard}>
+                  <div className={styles.memberIdentity}>
+                    <div className={styles.memberAvatar}>
+                      {member.name
+                        .split(' ')
+                        .map((part) => part[0])
+                        .join('')
+                        .slice(0, 2)
+                        .toUpperCase()}
+                    </div>
+                    <div>
+                      <strong>{member.name}</strong>
+                      <span>Admin access request</span>
+                    </div>
+                  </div>
+                  <div className={styles.memberLookupGrid}>
+                    <div className={styles.lookupItem}>
+                      <p>Email</p>
+                      <strong>{member.email}</strong>
+                    </div>
+                    <div className={styles.lookupItem}>
+                      <p>Mobile</p>
+                      <strong>{member.mobileNumber || 'Not provided'}</strong>
+                    </div>
+                    <div className={styles.lookupItem}>
+                      <p>Status</p>
+                      <strong>{member.approvalStatus}</strong>
+                    </div>
+                    <div className={styles.lookupItem}>
+                      <p>Requested on</p>
+                      <strong>{new Date(member.createdAt).toLocaleDateString()}</strong>
+                    </div>
+                  </div>
+                  <div className={styles.memberActions}>
+                    <button
+                      className={styles.primaryButton}
+                      type="button"
+                      onClick={() => handleApproval(member.id, 'approved')}
+                      disabled={saving}
+                    >
+                      Approve
+                    </button>
+                    <button
+                      className={styles.dangerButton}
+                      type="button"
+                      onClick={() => handleApproval(member.id, 'rejected')}
+                      disabled={saving}
+                    >
+                      Reject
+                    </button>
+                  </div>
+                </article>
+              ))
+            )}
+          </div>
+        </section>
+      ) : null}
 
       <section className={styles.adminLayout}>
         <AdminSidebar
           rooms={rooms}
           selectedRoomId={selectedRoomId}
           loading={loading}
+          userRole={consoleRole}
           onSelect={setSelectedRoomId}
           onCreateNew={() => setSelectedRoomId('new')}
         />
@@ -376,6 +559,7 @@ function App() {
           selectedRoom={selectedRoom}
           form={form}
           saving={saving}
+          currentUserRole={consoleRole}
           onSubmit={handleSubmit}
           onDelete={handleDelete}
           onChange={(key, value) => setForm((current) => ({ ...current, [key]: value }))}

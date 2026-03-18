@@ -24,6 +24,18 @@ export function NearbyPlacesEditor({ places, onAdd, onRemove, onChange }: Props)
       <div className={styles.placesList}>
         {places.map((place, index) => (
           <article key={place._id ?? place.id ?? `${place.name}-${index}`} className={styles.placeEditor}>
+            <div className={styles.placeEditorTop}>
+              <div>
+                <p className={styles.sectionLabel}>Place {index + 1}</p>
+                <strong className={styles.placeEditorTitle}>
+                  {place.name.trim() || 'New nearby place'}
+                </strong>
+              </div>
+              <button className={styles.removePlaceButton} type="button" onClick={() => onRemove(index)}>
+                Remove
+              </button>
+            </div>
+
             <div className={styles.formGridFour}>
               <label>
                 <span>Name</span>
@@ -62,10 +74,6 @@ export function NearbyPlacesEditor({ places, onAdd, onRemove, onChange }: Props)
                 onChange={(event) => onChange(index, 'highlight', event.target.value)}
               />
             </label>
-
-            <button className={styles.textButton} type="button" onClick={() => onRemove(index)}>
-              Remove place
-            </button>
           </article>
         ))}
       </div>

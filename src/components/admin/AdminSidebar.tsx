@@ -5,11 +5,12 @@ type Props = {
   rooms: Room[];
   selectedRoomId: string;
   loading: boolean;
+  userRole: 'admin' | 'superadmin';
   onSelect: (roomId: string) => void;
   onCreateNew: () => void;
 };
 
-export function AdminSidebar({ rooms, selectedRoomId, loading, onSelect, onCreateNew }: Props) {
+export function AdminSidebar({ rooms, selectedRoomId, loading, userRole, onSelect, onCreateNew }: Props) {
   return (
     <aside className={styles.sidebar}>
       <div className={styles.sidebarHeader}>
@@ -38,6 +39,7 @@ export function AdminSidebar({ rooms, selectedRoomId, loading, onSelect, onCreat
               <small>
                 {room.roomType} | {room.occupancy} | {room.seatsLeft} seats left
               </small>
+              {userRole === 'superadmin' ? <small>Owner: {room.ownerName}</small> : null}
             </div>
             <div className={styles.roomRowMeta}>
               {room.featured ? <em className={styles.featuredMark}>Featured</em> : null}
