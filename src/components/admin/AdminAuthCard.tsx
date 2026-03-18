@@ -13,7 +13,7 @@ type Props = {
 
 export function AdminAuthCard({ onLogin, onSignup }: Props) {
   const [mode, setMode] = useState<'login' | 'signup'>('login');
-  const [name, setName] = useState('');
+  const [name] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [inviteCode, setInviteCode] = useState('');
