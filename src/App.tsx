@@ -298,13 +298,28 @@ function App() {
   return (
     <main className={styles.adminShell}>
       <section className={styles.adminHero}>
-        <div>
+        <div className={styles.heroContent}>
           <p className={styles.eyebrow}>Admin console</p>
+          <div className={styles.heroBadgeRow}>
+            <span>Live sync</span>
+            <span>Live inventory</span>
+            <span>Curated public listings</span>
+          </div>
           <h1>Manage room listings, nearby famous places, and live availability.</h1>
           <p className={styles.heroCopy}>
-            Logged in as {user.name}. This dashboard updates the same MongoDB-backed backend used by
-            the public room finder.
+            Logged in as {user.name}. This dashboard updates the same live data used by the public
+            room finder.
           </p>
+          <div className={styles.heroMetaGrid}>
+            <article>
+              <span>Average rent</span>
+              <strong>Rs. {summary?.avgPrice ?? 0}</strong>
+            </article>
+            <article>
+              <span>Active cities</span>
+              <strong>{summary?.cities.length ?? 0}</strong>
+            </article>
+          </div>
           <button className={styles.ghostButton} type="button" onClick={logout}>
             Logout
           </button>
@@ -332,6 +347,21 @@ function App() {
 
       {error ? <p className={`${styles.notice} ${styles.error}`}>{error}</p> : null}
       {status ? <p className={`${styles.notice} ${styles.success}`}>{status}</p> : null}
+
+      <section className={styles.workspaceBar}>
+        <div>
+          <p className={styles.sectionLabel}>Workspace</p>
+          <strong>{selectedRoom ? `Editing ${selectedRoom.title}` : 'Preparing a new room draft'}</strong>
+        </div>
+        <div>
+          <p className={styles.sectionLabel}>Visibility</p>
+          <strong>{selectedRoom?.featured ? 'Featured on frontend' : 'Standard listing'}</strong>
+        </div>
+        <div>
+          <p className={styles.sectionLabel}>Availability</p>
+          <strong>{selectedRoom ? `${selectedRoom.seatsLeft} seats left` : `${rooms.length} rooms in inventory`}</strong>
+        </div>
+      </section>
 
       <section className={styles.adminLayout}>
         <AdminSidebar

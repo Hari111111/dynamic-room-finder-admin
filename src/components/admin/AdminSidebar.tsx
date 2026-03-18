@@ -30,13 +30,19 @@ export function AdminSidebar({ rooms, selectedRoomId, loading, onSelect, onCreat
             className={`${styles.roomRow} ${selectedRoomId === room._id ? styles.roomRowActive : ''}`}
             onClick={() => onSelect(room._id)}
           >
-            <div>
+            <div className={styles.roomRowCopy}>
               <strong>{room.title}</strong>
               <span>
                 {room.locality}, {room.city}
               </span>
+              <small>
+                {room.roomType} | {room.occupancy} | {room.seatsLeft} seats left
+              </small>
             </div>
-            <small>Rs. {room.price}</small>
+            <div className={styles.roomRowMeta}>
+              {room.featured ? <em className={styles.featuredMark}>Featured</em> : null}
+              <small>Rs. {room.price}</small>
+            </div>
           </button>
         ))}
       </div>

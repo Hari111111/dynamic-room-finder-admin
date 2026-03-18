@@ -43,11 +43,12 @@ export function AdminAuthCard({ onLogin, onSignup }: Props) {
       <div className={styles.authPanel}>
         <div>
           <p className={styles.eyebrow}>Admin access</p>
-          <h1>Login or create an admin account to manage rooms from MongoDB.</h1>
-          <p className={styles.heroCopy}>
-            This console is protected. Use an existing admin login, or sign up with the invite code
-            configured in your backend environment.
-          </p>
+          <div className={styles.heroBadgeRow}>
+            <span>Secure access</span>
+            <span>Editor workspace</span>
+            <span>Frontend sync</span>
+          </div>
+          <h3>Login or create an admin account to manage live room listings.</h3>
         </div>
 
         <div className={styles.authTabs}>
@@ -58,22 +59,22 @@ export function AdminAuthCard({ onLogin, onSignup }: Props) {
           >
             Login
           </button>
-          <button
+          {/* <button
             type="button"
             className={mode === 'signup' ? styles.authTabActive : styles.authTab}
             onClick={() => setMode('signup')}
           >
             Signup
-          </button>
+          </button> */}
         </div>
 
         <form className={styles.authForm} onSubmit={handleSubmit}>
-          {mode === 'signup' ? (
+          {/* {mode === 'signup' ? (
             <label>
               <span>Name</span>
               <input value={name} onChange={(event) => setName(event.target.value)} />
             </label>
-          ) : null}
+          ) : null} */}
           <label>
             <span>Email</span>
             <input value={email} onChange={(event) => setEmail(event.target.value)} />
