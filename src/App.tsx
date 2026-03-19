@@ -98,6 +98,7 @@ function App() {
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState('');
   const [error, setError] = useState('');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     const raw = window.localStorage.getItem(ADMIN_AUTH_STORAGE_KEY);
@@ -194,6 +195,12 @@ function App() {
     [members],
   );
 
+  const featuredRooms = useMemo(() => rooms.filter((room) => room.featured).slice(0, 3), [rooms]);
+
+  const latestUpdatedRoom = useMemo(() => {
+    return [...rooms].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())[0] ?? null;
+  }, [rooms]);
+
   async function login(payload: { email: string; password: string }) {
     const response = await apiRequest<LoginResponse>('/api/auth/login', {
       method: 'POST',
@@ -255,10 +262,7 @@ function App() {
         placeIndex === index
           ? {
               ...place,
-              [key]:
-                key === 'distanceKm' || key === 'walkMinutes'
-                  ? Number(value)
-                  : value,
+              [key]: key === 'distanceKm' || key === 'walkMinutes' ? Number(value) : value,
             }
           : place,
       ),
@@ -401,193 +405,286 @@ function App() {
 
   return (
     <main className={styles.adminShell}>
-      <section className={styles.adminHero}>
-        <div className={styles.heroContent}>
-          <p className={styles.eyebrow}>{consoleRole === 'superadmin' ? 'Superadmin console' : 'Admin console'}</p>
-          <div className={styles.heroBadgeRow}>
-            <span>{consoleRole === 'superadmin' ? 'Global oversight' : 'My room inventory'}</span>
-            <span>{consoleRole === 'superadmin' ? 'Approve admin access' : 'Owner-scoped access'}</span>
-            <span>Live room workspace</span>
-          </div>
-          <h1>
-            {consoleRole === 'superadmin'
-              ? 'Approve admins and oversee every room listing from one workspace.'
-              : 'Manage only the room listings you create and keep availability current.'}
-          </h1>
-          <p className={styles.heroCopy}>
-            Logged in as {user.name}. {consoleRole === 'superadmin'
-              ? 'You can approve new admin registrations and manage all room inventory.'
-              : 'You can create, update, and delete only the rooms owned by your account.'}
-          </p>
-          <div className={styles.heroMetaGrid}>
-            <article>
-              <span>Average rent</span>
-              <strong>Rs. {summary?.avgPrice ?? 0}</strong>
-            </article>
-            <article>
-              <span>Active cities</span>
-              <strong>{summary?.cities.length ?? 0}</strong>
-            </article>
-          </div>
-          <button className={styles.ghostButton} type="button" onClick={logout}>
-            Logout
-          </button>
-        </div>
-
-        <div className={styles.statsGrid}>
-          <article>
-            <span>{consoleRole === 'superadmin' ? 'Total rooms' : 'My rooms'}</span>
-            <strong>{summary?.totalRooms ?? 0}</strong>
-          </article>
-          <article>
-            <span>Featured</span>
-            <strong>{summary?.featuredRooms ?? 0}</strong>
-          </article>
-          <article>
-            <span>{consoleRole === 'superadmin' ? 'Team members' : 'My role'}</span>
-            <strong>{consoleRole === 'superadmin' ? summary?.totalMembers ?? 0 : 'Admin'}</strong>
-          </article>
-          <article>
-            <span>{consoleRole === 'superadmin' ? 'Pending approvals' : 'Status'}</span>
-            <strong>{consoleRole === 'superadmin' ? summary?.pendingApprovals ?? 0 : user.approvalStatus}</strong>
-          </article>
-        </div>
-      </section>
-
-      {error ? <p className={`${styles.notice} ${styles.error}`}>{error}</p> : null}
-      {status ? <p className={`${styles.notice} ${styles.success}`}>{status}</p> : null}
-
-      <section className={styles.workspaceBar}>
-        <div>
-          <p className={styles.sectionLabel}>Workspace</p>
-          <strong>{selectedRoom ? `Editing ${selectedRoom.title}` : 'Preparing a new room draft'}</strong>
-        </div>
-        <div>
-          <p className={styles.sectionLabel}>Permissions</p>
-          <strong>{consoleRole === 'superadmin' ? 'Can manage all rooms and users' : 'Can manage only owned rooms'}</strong>
-        </div>
-        <div>
-          <p className={styles.sectionLabel}>Visibility</p>
-          <strong>{selectedRoom?.featured ? 'Featured on frontend' : 'Standard listing'}</strong>
-        </div>
-      </section>
-
-      {consoleRole === 'superadmin' ? (
-        <section className={styles.approvalPanel}>
-          <div className={styles.approvalPanelHeader}>
-            <div>
-              <p className={styles.eyebrow}>Access approvals</p>
-              <h2>{pendingMembers.length} pending admin request{pendingMembers.length === 1 ? '' : 's'}</h2>
-            </div>
-            <p className={styles.heroCopy}>Approve trusted admins so they can manage only their own room inventory.</p>
-          </div>
-
-          <div className={styles.memberList}>
-            {pendingMembers.length === 0 ? (
-              <div className={styles.emptyApprovalState}>No pending admin approvals right now.</div>
-            ) : (
-              pendingMembers.map((member) => (
-                <article key={member.id} className={styles.memberCard}>
-                  <div className={styles.memberIdentity}>
-                    <div className={styles.memberAvatar}>
-                      {member.name
-                        .split(' ')
-                        .map((part) => part[0])
-                        .join('')
-                        .slice(0, 2)
-                        .toUpperCase()}
-                    </div>
-                    <div>
-                      <strong>{member.name}</strong>
-                      <span>Admin access request</span>
-                    </div>
-                  </div>
-                  <div className={styles.memberLookupGrid}>
-                    <div className={styles.lookupItem}>
-                      <p>Email</p>
-                      <strong>{member.email}</strong>
-                    </div>
-                    <div className={styles.lookupItem}>
-                      <p>Mobile</p>
-                      <strong>{member.mobileNumber || 'Not provided'}</strong>
-                    </div>
-                    <div className={styles.lookupItem}>
-                      <p>Status</p>
-                      <strong>{member.approvalStatus}</strong>
-                    </div>
-                    <div className={styles.lookupItem}>
-                      <p>Requested on</p>
-                      <strong>{new Date(member.createdAt).toLocaleDateString()}</strong>
-                    </div>
-                  </div>
-                  <div className={styles.memberActions}>
-                    <button
-                      className={styles.primaryButton}
-                      type="button"
-                      onClick={() => handleApproval(member.id, 'approved')}
-                      disabled={saving}
-                    >
-                      Approve
-                    </button>
-                    <button
-                      className={styles.dangerButton}
-                      type="button"
-                      onClick={() => handleApproval(member.id, 'rejected')}
-                      disabled={saving}
-                    >
-                      Reject
-                    </button>
-                  </div>
-                </article>
-              ))
-            )}
-          </div>
-        </section>
-      ) : null}
-
-      <section className={styles.adminLayout}>
+      <div className={styles.dashboardFrame}>
         <AdminSidebar
           rooms={rooms}
           selectedRoomId={selectedRoomId}
           loading={loading}
           userRole={consoleRole}
+          collapsed={sidebarCollapsed}
+          onToggleCollapse={() => setSidebarCollapsed((current) => !current)}
           onSelect={setSelectedRoomId}
           onCreateNew={() => setSelectedRoomId('new')}
         />
 
-        <RoomEditor
-          selectedRoom={selectedRoom}
-          form={form}
-          saving={saving}
-          currentUserRole={consoleRole}
-          onSubmit={handleSubmit}
-          onDelete={handleDelete}
-          onChange={(key, value) => setForm((current) => ({ ...current, [key]: value }))}
-          onAddPlace={() =>
-            setForm((current) => ({
-              ...current,
-              nearbyPlaces: [
-                ...current.nearbyPlaces,
-                {
-                  id: `draft_${Date.now()}_${current.nearbyPlaces.length}`,
-                  name: '',
-                  category: 'Cafe',
-                  distanceKm: 0.5,
-                  walkMinutes: 6,
-                  highlight: '',
-                },
-              ],
-            }))
-          }
-          onRemovePlace={(index) =>
-            setForm((current) => ({
-              ...current,
-              nearbyPlaces: current.nearbyPlaces.filter((_, placeIndex) => placeIndex !== index),
-            }))
-          }
-          onPlaceChange={updatePlace}
-        />
-      </section>
+        <div className={styles.dashboardBody}>
+          <header className={styles.appHeader}>
+            <div>
+              <p className={styles.eyebrow}>{consoleRole === 'superadmin' ? 'Superadmin dashboard' : 'Admin dashboard'}</p>
+              <h1 className={styles.appTitle}>Room Finder Control Center</h1>
+              <p className={styles.headerCopy}>
+                Track room inventory, manage listing quality, and keep operations moving from one clean workspace.
+              </p>
+            </div>
+
+            <div className={styles.headerActions}>
+              <div className={styles.profileCard}>
+                <span className={styles.profileLabel}>Signed in</span>
+                <strong>{user.name}</strong>
+                <small>{user.email}</small>
+              </div>
+              <button className={styles.ghostButton} type="button" onClick={logout}>
+                Logout
+              </button>
+            </div>
+          </header>
+
+          {error ? <p className={`${styles.notice} ${styles.error}`}>{error}</p> : null}
+          {status ? <p className={`${styles.notice} ${styles.success}`}>{status}</p> : null}
+
+          <section className={styles.dashboardMain}>
+            <div className={styles.mainColumn}>
+              <section className={styles.heroPanel}>
+                <div className={styles.heroPanelContent}>
+                  <p className={styles.eyebrow}>Operations overview</p>
+                  <h2>
+                    {consoleRole === 'superadmin'
+                      ? 'Approve admins, monitor room supply, and keep every listing sharp.'
+                      : 'Manage your inventory with a faster, cleaner dashboard flow.'}
+                  </h2>
+                  <p className={styles.heroCopy}>
+                    {consoleRole === 'superadmin'
+                      ? 'You have full visibility across admins and inventory. Use the dashboard to approve access and maintain listing quality.'
+                      : 'You can create, edit, and publish only the listings owned by your account, with your work centered in the editor.'}
+                  </p>
+                  <div className={styles.heroBadgeRow}>
+                    <span>{consoleRole === 'superadmin' ? 'Global control' : 'Owner workspace'}</span>
+                    <span>{featuredRooms.length} featured live</span>
+                    <span>{summary?.cities.length ?? 0} active cities</span>
+                  </div>
+                </div>
+                <div className={styles.heroSpotlight}>
+                  <span className={styles.spotlightLabel}>Latest update</span>
+                  <strong>{latestUpdatedRoom?.title ?? 'No live rooms yet'}</strong>
+                  <p>
+                    {latestUpdatedRoom
+                      ? `${latestUpdatedRoom.locality}, ${latestUpdatedRoom.city}`
+                      : 'Create your first room listing to populate the dashboard.'}
+                  </p>
+                  <small>
+                    {latestUpdatedRoom
+                      ? `Updated ${new Date(latestUpdatedRoom.updatedAt).toLocaleDateString()}`
+                      : 'Draft space ready'}
+                  </small>
+                </div>
+              </section>
+
+              <section className={styles.metricGrid}>
+                <article className={styles.metricCard}>
+                  <span>Total rooms</span>
+                  <strong>{summary?.totalRooms ?? 0}</strong>
+                  <small>{consoleRole === 'superadmin' ? 'Across all admins' : 'Rooms under your account'}</small>
+                </article>
+                <article className={styles.metricCard}>
+                  <span>Featured rooms</span>
+                  <strong>{summary?.featuredRooms ?? 0}</strong>
+                  <small>Listings highlighted on the frontend</small>
+                </article>
+                <article className={styles.metricCard}>
+                  <span>Average rent</span>
+                  <strong>Rs. {summary?.avgPrice ?? 0}</strong>
+                  <small>Blended across active inventory</small>
+                </article>
+                <article className={styles.metricCard}>
+                  <span>{consoleRole === 'superadmin' ? 'Pending approvals' : 'Account status'}</span>
+                  <strong>{consoleRole === 'superadmin' ? summary?.pendingApprovals ?? 0 : user.approvalStatus}</strong>
+                  <small>
+                    {consoleRole === 'superadmin' ? 'Admin signups waiting review' : 'Current access approval state'}
+                  </small>
+                </article>
+              </section>
+
+              <section className={styles.workspaceBar}>
+                <div>
+                  <p className={styles.sectionLabel}>Workspace</p>
+                  <strong>{selectedRoom ? `Editing ${selectedRoom.title}` : 'Preparing a new room draft'}</strong>
+                </div>
+                <div>
+                  <p className={styles.sectionLabel}>Permissions</p>
+                  <strong>{consoleRole === 'superadmin' ? 'Can manage all rooms and users' : 'Can manage only owned rooms'}</strong>
+                </div>
+                <div>
+                  <p className={styles.sectionLabel}>Visibility</p>
+                  <strong>{selectedRoom?.featured ? 'Featured on frontend' : 'Standard listing'}</strong>
+                </div>
+              </section>
+
+              {consoleRole === 'superadmin' ? (
+                <section className={styles.approvalPanel}>
+                  <div className={styles.approvalPanelHeader}>
+                    <div>
+                      <p className={styles.eyebrow}>Access approvals</p>
+                      <h2>{pendingMembers.length} pending admin request{pendingMembers.length === 1 ? '' : 's'}</h2>
+                    </div>
+                    <p className={styles.heroCopy}>Approve trusted admins so they can manage only their own room inventory.</p>
+                  </div>
+
+                  <div className={styles.memberList}>
+                    {pendingMembers.length === 0 ? (
+                      <div className={styles.emptyApprovalState}>No pending admin approvals right now.</div>
+                    ) : (
+                      pendingMembers.map((member) => (
+                        <article key={member.id} className={styles.memberCard}>
+                          <div className={styles.memberIdentity}>
+                            <div className={styles.memberAvatar}>
+                              {member.name
+                                .split(' ')
+                                .map((part) => part[0])
+                                .join('')
+                                .slice(0, 2)
+                                .toUpperCase()}
+                            </div>
+                            <div>
+                              <strong>{member.name}</strong>
+                              <span>Admin access request</span>
+                            </div>
+                          </div>
+                          <div className={styles.memberLookupGrid}>
+                            <div className={styles.lookupItem}>
+                              <p>Email</p>
+                              <strong>{member.email}</strong>
+                            </div>
+                            <div className={styles.lookupItem}>
+                              <p>Mobile</p>
+                              <strong>{member.mobileNumber || 'Not provided'}</strong>
+                            </div>
+                            <div className={styles.lookupItem}>
+                              <p>Status</p>
+                              <strong>{member.approvalStatus}</strong>
+                            </div>
+                            <div className={styles.lookupItem}>
+                              <p>Requested on</p>
+                              <strong>{new Date(member.createdAt).toLocaleDateString()}</strong>
+                            </div>
+                          </div>
+                          <div className={styles.memberActions}>
+                            <button
+                              className={styles.primaryButton}
+                              type="button"
+                              onClick={() => handleApproval(member.id, 'approved')}
+                              disabled={saving}
+                            >
+                              Approve
+                            </button>
+                            <button
+                              className={styles.dangerButton}
+                              type="button"
+                              onClick={() => handleApproval(member.id, 'rejected')}
+                              disabled={saving}
+                            >
+                              Reject
+                            </button>
+                          </div>
+                        </article>
+                      ))
+                    )}
+                  </div>
+                </section>
+              ) : null}
+
+              <RoomEditor
+                selectedRoom={selectedRoom}
+                form={form}
+                saving={saving}
+                currentUserRole={consoleRole}
+                onSubmit={handleSubmit}
+                onDelete={handleDelete}
+                onChange={(key, value) => setForm((current) => ({ ...current, [key]: value }))}
+                onAddPlace={() =>
+                  setForm((current) => ({
+                    ...current,
+                    nearbyPlaces: [
+                      ...current.nearbyPlaces,
+                      {
+                        id: `draft_${Date.now()}_${current.nearbyPlaces.length}`,
+                        name: '',
+                        category: 'Cafe',
+                        distanceKm: 0.5,
+                        walkMinutes: 6,
+                        highlight: '',
+                      },
+                    ],
+                  }))
+                }
+                onRemovePlace={(index) =>
+                  setForm((current) => ({
+                    ...current,
+                    nearbyPlaces: current.nearbyPlaces.filter((_, placeIndex) => placeIndex !== index),
+                  }))
+                }
+                onPlaceChange={updatePlace}
+              />
+            </div>
+
+            <aside className={styles.rightRail}>
+              <section className={styles.railCard}>
+                <div className={styles.railCardHeader}>
+                  <div>
+                    <p className={styles.sectionLabel}>Quick summary</p>
+                    <strong>{consoleRole === 'superadmin' ? 'Team and inventory' : 'Publishing snapshot'}</strong>
+                  </div>
+                </div>
+                <div className={styles.railStack}>
+                  <div className={styles.railStat}>
+                    <span>Cities covered</span>
+                    <strong>{summary?.cities.length ?? 0}</strong>
+                  </div>
+                  <div className={styles.railStat}>
+                    <span>{consoleRole === 'superadmin' ? 'Team members' : 'Draft mode'}</span>
+                    <strong>{consoleRole === 'superadmin' ? summary?.totalMembers ?? 0 : selectedRoom ? 'Live edit' : 'New room'}</strong>
+                  </div>
+                  <div className={styles.railStat}>
+                    <span>Selected room</span>
+                    <strong>{selectedRoom?.title ?? 'Untitled draft'}</strong>
+                  </div>
+                </div>
+              </section>
+
+              <section className={styles.railCard}>
+                <div className={styles.railCardHeader}>
+                  <div>
+                    <p className={styles.sectionLabel}>Featured now</p>
+                    <strong>Best performing picks</strong>
+                  </div>
+                </div>
+                <div className={styles.featureList}>
+                  {featuredRooms.length === 0 ? (
+                    <p className={styles.emptyApprovalState}>No featured rooms yet. Mark a listing as featured to highlight it here.</p>
+                  ) : (
+                    featuredRooms.map((room) => (
+                      <button
+                        key={room._id}
+                        type="button"
+                        className={styles.featureItem}
+                        onClick={() => setSelectedRoomId(room._id)}
+                      >
+                        <strong>{room.title}</strong>
+                        <span>{room.locality}, {room.city}</span>
+                        <small>Rs. {room.price} per month</small>
+                      </button>
+                    ))
+                  )}
+                </div>
+              </section>
+            </aside>
+          </section>
+
+          <footer className={styles.appFooter}>
+            <span>Room Finder Admin Dashboard</span>
+            <span>{consoleRole === 'superadmin' ? 'Full access control enabled' : 'Owner-managed workspace enabled'}</span>
+          </footer>
+        </div>
+      </div>
     </main>
   );
 }

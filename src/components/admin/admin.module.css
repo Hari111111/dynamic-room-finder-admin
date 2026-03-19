@@ -1,10 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Bebas+Neue&display=swap');
 
 .adminShell,
 .authShell {
   min-height: 100vh;
   padding: 24px;
-  color: #162033;
+  color: #f4f4f4;
 }
 
 .authShell {
@@ -15,111 +15,150 @@
   overflow: hidden;
 }
 
-.adminHero,
-.sidebar,
-.editorPanel,
-.notice,
-.authPanel,
-.workspaceBar,
-.approvalPanel {
-  border: 1px solid rgba(22, 32, 51, 0.08);
-  background: rgba(255, 255, 255, 0.76);
-  box-shadow: 0 24px 70px rgba(24, 32, 52, 0.08);
-  backdrop-filter: blur(18px);
+.dashboardFrame {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 22px;
+  min-height: calc(100vh - 48px);
 }
 
-.adminHero,
+.dashboardBody,
+.authPanel,
+.heroPanel,
+.metricCard,
+.notice,
+.workspaceBar,
+.approvalPanel,
+.editorPanel,
+.railCard,
+.appHeader,
+.appFooter,
+.sidebar {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, rgba(19, 19, 19, 0.96), rgba(8, 8, 8, 0.98));
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
+}
+
+.dashboardBody {
+  display: grid;
+  gap: 20px;
+  padding: 22px;
+  border-radius: 32px;
+}
+
 .authPanel {
+  width: min(620px, 100%);
+  margin: 0 auto;
   display: grid;
   gap: 20px;
   padding: 30px;
   border-radius: 30px;
 }
 
-.adminHero {
-  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.95fr);
-  background:
-    radial-gradient(circle at 10% 0%, rgba(200, 145, 61, 0.12), transparent 32%),
-    linear-gradient(145deg, rgba(255, 252, 246, 0.92), rgba(245, 248, 251, 0.78));
-}
-
-.authPanel {
-  width: min(620px, 100%);
-  margin: 0 auto;
-  background:
-    radial-gradient(circle at top right, rgba(12, 95, 102, 0.08), transparent 26%),
-    linear-gradient(145deg, rgba(255, 252, 246, 0.92), rgba(245, 248, 251, 0.8));
-}
-
-.heroContent {
+.sidebar {
+  width: 320px;
   display: grid;
+  align-content: start;
   gap: 18px;
+  padding: 20px;
+  border-radius: 32px;
+  position: sticky;
+  top: 24px;
+  max-height: calc(100vh - 48px);
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(17, 17, 17, 0.99), rgba(5, 5, 5, 0.99)),
+    radial-gradient(circle at top, rgba(255, 59, 59, 0.18), transparent 42%);
 }
 
-.eyebrow,
-.sectionLabel {
-  font-size: 0.78rem;
-  font-weight: 800;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: #b45f17;
+.sidebarCollapsed {
+  width: 96px;
 }
 
-.sectionLabel {
-  color: #6a768f;
-}
-
-.heroBadgeRow,
-.memberActions,
-.statusCardGrid,
-.authTabs {
+.sidebarTop,
+.sidebarHeader,
+.approvalPanelHeader,
+.editorTop,
+.placesHeader,
+.formActions,
+.formSectionHeader,
+.memberCard,
+.placeEditorTop,
+.railCardHeader,
+.appHeader,
+.headerActions {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
 }
 
-.heroBadgeRow span {
-  padding: 10px 14px;
-  border-radius: 999px;
-  background: rgba(245, 238, 226, 0.92);
-  color: #41506a;
-  border: 1px solid rgba(180, 95, 23, 0.08);
-  font-size: 0.9rem;
-}
-
-.adminHero h1,
+.sidebarBrand h2,
+.sidebarHeader h2,
+.appTitle,
+.heroPanel h2,
+.approvalPanelHeader h2,
+.editorTop h2,
+.placesHeader h3,
 .authPanel h1,
+.authPanel h3 {
+  margin: 0;
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  letter-spacing: 0.04em;
+  font-weight: 400;
+}
+
+.appTitle {
+  font-size: clamp(2.2rem, 3vw, 3.5rem);
+}
+
+.heroPanel h2,
+.authPanel h1,
+.authPanel h3 {
+  font-size: clamp(2.4rem, 3.6vw, 4rem);
+  line-height: 0.95;
+}
+
 .approvalPanelHeader h2,
 .sidebarHeader h2,
 .editorTop h2,
 .placesHeader h3,
-.authPanel h3 {
-  margin: 0;
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-weight: 600;
-  line-height: 0.95;
-  letter-spacing: -0.045em;
-}
-
-.adminHero h1,
-.authPanel h1,
-.authPanel h3 {
-  max-width: 14ch;
-  font-size: clamp(2.8rem, 4vw, 4.8rem);
-}
-
-.approvalPanelHeader h2,
-.sidebarHeader h2,
-.editorTop h2,
-.placesHeader h3 {
+.sidebarBrand h2 {
   font-size: 2rem;
+}
+
+.eyebrow,
+.sectionLabel,
+.profileLabel,
+.spotlightLabel,
+.sidebarHeaderText {
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #ff6b6b;
+}
+
+.sectionLabel,
+.profileLabel,
+.sidebarHeaderText {
+  color: rgba(255, 255, 255, 0.56);
 }
 
 .heroCopy,
 .editorLead,
-.ownerNote {
-  max-width: 58ch;
-  color: #596780;
+.ownerNote,
+.headerCopy,
+.heroSpotlight p,
+.featureItem span,
+.featureItem small,
+.lookupItem p,
+.roomRow span,
+.roomRow small,
+.memberCard span,
+.memberCard small,
+.authPanel p {
+  color: rgba(255, 255, 255, 0.68);
   line-height: 1.7;
 }
 
@@ -127,210 +166,196 @@
   font-weight: 700;
 }
 
-.heroMetaGrid,
-.statsGrid,
+.dashboardMain {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(280px, 0.72fr);
+  gap: 20px;
+}
+
+.mainColumn,
+.rightRail,
+.railStack,
+.memberList,
+.roomList,
+.editorForm,
+.placesList,
+.authForm,
+.featureList,
+.heroPanel,
+.heroPanelContent,
+.dashboardBody {
+  display: grid;
+  gap: 18px;
+}
+
+.appHeader,
+.appFooter,
+.workspaceBar,
+.approvalPanel,
+.editorPanel,
+.railCard,
+.heroPanel,
+.notice {
+  border-radius: 28px;
+}
+
+.appHeader {
+  padding: 22px 24px;
+  background:
+    radial-gradient(circle at top right, rgba(255, 59, 59, 0.18), transparent 30%),
+    linear-gradient(180deg, rgba(25, 25, 25, 0.98), rgba(10, 10, 10, 0.98));
+}
+
+.headerActions {
+  justify-content: flex-end;
+}
+
+.profileCard {
+  display: grid;
+  gap: 4px;
+  min-width: 220px;
+  padding: 14px 18px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.profileCard strong,
+.heroSpotlight strong,
+.metricCard strong,
+.workspaceBar strong,
+.railStat strong,
+.lookupItem strong,
+.statusCardGrid strong,
+.memberCard strong {
+  display: block;
+  color: #ffffff;
+}
+
+.profileCard small {
+  color: rgba(255, 255, 255, 0.52);
+}
+
+.heroPanel {
+  grid-template-columns: minmax(0, 1.4fr) minmax(260px, 0.72fr);
+  padding: 24px;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(255, 59, 59, 0.24), transparent 36%),
+    linear-gradient(135deg, #180808 0%, #090909 60%, #1a0b0b 100%);
+}
+
+.heroBadgeRow,
+.memberActions,
+.statusCardGrid,
+.authTabs,
+.sidebarMenu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.heroBadgeRow span,
+.sidebarNavItem {
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #f6d4d4;
+  border: 1px solid rgba(255, 107, 107, 0.14);
+  font-size: 0.9rem;
+}
+
+.heroSpotlight {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  padding: 20px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 107, 107, 0.16);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 59, 59, 0.08));
+}
+
+.metricGrid,
 .workspaceBar,
 .statusCardGrid {
   display: grid;
   gap: 14px;
 }
 
-.heroMetaGrid,
-.statusCardGrid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+.metricGrid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
-.heroMetaGrid article,
+.metricCard,
 .workspaceBar > div,
-.statusCardGrid article {
+.statusCardGrid article,
+.lookupItem,
+.formSection,
+.placeEditor,
+.placesSection,
+.railStat,
+.featureItem,
+.memberCard,
+.emptyApprovalState {
   border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.015));
+}
+
+.metricCard,
+.workspaceBar > div,
+.lookupItem,
+.railStat,
+.featureItem,
+.memberCard,
+.emptyApprovalState,
+.formSection,
+.placesSection,
+.placeEditor {
   padding: 18px;
-  background: rgba(247, 248, 249, 0.9);
-  border: 1px solid rgba(22, 32, 51, 0.06);
 }
 
-.heroMetaGrid span,
+.metricCard span,
 .workspaceBar p,
-.statsGrid span,
-.roomRow span,
-.roomRow small,
-.memberCard span,
-.memberCard small,
-.statusCardGrid span {
-  color: #61708a;
+.railStat span {
+  color: rgba(255, 255, 255, 0.56);
 }
 
-.heroMetaGrid strong,
+.metricCard strong,
 .workspaceBar strong,
-.statsGrid strong,
+.railStat strong,
 .statusCardGrid strong {
-  display: block;
   margin-top: 8px;
-  font-size: 1.35rem;
-}
-
-.statsGrid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.statsGrid article {
-  border-radius: 22px;
-  padding: 20px;
-  background: linear-gradient(155deg, rgba(19, 48, 85, 0.98), rgba(13, 95, 102, 0.94));
-  color: #ecf4ff;
-}
-
-.statsGrid span {
-  color: rgba(236, 244, 255, 0.72);
-}
-
-.statsGrid strong {
-  font-size: 1.6rem;
+  font-size: 1.4rem;
 }
 
 .notice {
-  margin-top: 18px;
   padding: 14px 18px;
-  border-radius: 18px;
 }
 
 .error {
-  color: #a73a2d;
-  background: rgba(255, 243, 241, 0.92);
+  color: #ff8d8d;
+  background: linear-gradient(180deg, rgba(85, 10, 10, 0.95), rgba(45, 6, 6, 0.95));
 }
 
 .success {
-  color: #1b6c51;
-  background: rgba(238, 255, 247, 0.92);
+  color: #ffe4e4;
+  background: linear-gradient(180deg, rgba(111, 15, 15, 0.95), rgba(56, 8, 8, 0.95));
 }
 
 .workspaceBar {
-  margin-top: 18px;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   padding: 14px;
-  border-radius: 24px;
 }
 
-.approvalPanel {
-  display: grid;
-  gap: 18px;
-  margin-top: 20px;
-  padding: 22px;
-  border-radius: 28px;
-  background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.88), rgba(245, 248, 250, 0.76)),
-    rgba(255, 255, 255, 0.74);
-}
-
-.approvalPanelHeader,
-.sidebarHeader,
-.editorTop,
-.placesHeader,
-.formActions,
-.formSectionHeader,
-.memberCard {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  align-items: center;
-}
-
-.memberList,
-.roomList,
-.editorForm,
-.placesList,
-.authForm {
-  display: grid;
-  gap: 18px;
-}
-
-.memberCard,
-.emptyApprovalState {
-  padding: 18px;
-  border-radius: 22px;
-  border: 1px solid rgba(22, 32, 51, 0.06);
-  background: rgba(247, 248, 249, 0.88);
-}
-
-.memberIdentity {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.memberAvatar {
-  display: grid;
-  place-items: center;
-  width: 52px;
-  height: 52px;
-  border-radius: 18px;
-  background: linear-gradient(135deg, rgba(20, 60, 112, 0.96), rgba(15, 95, 102, 0.92));
-  color: #eef6ff;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-}
-
-.memberLookupGrid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
-  flex: 1;
-}
-
-.lookupItem {
-  display: grid;
-  gap: 6px;
-  padding: 14px;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.78);
-  border: 1px solid rgba(22, 32, 51, 0.06);
-}
-
-.lookupItem p {
-  color: #6a768f;
-  font-size: 0.76rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.lookupItem strong {
-  display: block;
-  color: #1f2c45;
-  font-size: 0.98rem;
-  line-height: 1.4;
-  word-break: break-word;
-}
-
-.memberCard strong {
-  display: block;
-  font-size: 1.05rem;
-}
-
-.emptyApprovalState {
-  color: #61708a;
-}
-
-.adminLayout {
-  display: grid;
-  grid-template-columns: minmax(320px, 0.86fr) minmax(0, 1.55fr);
-  gap: 20px;
-  margin-top: 20px;
-}
-
-.sidebar,
-.editorPanel {
-  border-radius: 28px;
+.approvalPanel,
+.editorPanel,
+.railCard {
   padding: 22px;
 }
 
-.sidebar {
-  display: grid;
-  gap: 18px;
-  align-content: start;
-  background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.86), rgba(245, 248, 250, 0.76)),
-    rgba(255, 255, 255, 0.74);
+.roomList {
+  overflow: auto;
+  padding-right: 4px;
 }
 
 .roomRow {
@@ -340,18 +365,29 @@
   align-items: flex-start;
   padding: 16px;
   border-radius: 20px;
-  border: 1px solid rgba(31, 42, 64, 0.08);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(243, 246, 250, 0.9));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.02));
   text-align: left;
   cursor: pointer;
   transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
 }
 
 .roomRow:hover,
-.roomRowActive {
+.roomRowActive,
+.featureItem:hover {
   transform: translateY(-2px);
-  border-color: rgba(14, 95, 102, 0.2);
-  box-shadow: 0 18px 38px rgba(22, 49, 69, 0.1);
+  border-color: rgba(255, 107, 107, 0.32);
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.26);
+}
+
+.roomRowCompact {
+  justify-content: center;
+  align-items: center;
+  padding: 14px 10px;
+}
+
+.roomRowCompact .roomRowCopy {
+  justify-items: center;
 }
 
 .roomRowCopy,
@@ -366,11 +402,16 @@
 
 .roomRow strong,
 .roomRow span,
-.roomRow small {
+.roomRow small,
+.featureItem strong,
+.featureItem span,
+.featureItem small {
   display: block;
 }
 
-.roomRow strong {
+.roomRow strong,
+.featureItem strong,
+.heroSpotlight strong {
   font-size: 1.05rem;
 }
 
@@ -381,40 +422,29 @@
 .featuredMark {
   padding: 6px 10px;
   border-radius: 999px;
-  background: rgba(16, 99, 106, 0.1);
-  color: #0f6369;
+  background: rgba(255, 59, 59, 0.14);
+  color: #ff8d8d;
   font-style: normal;
   font-size: 0.78rem;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-}
-
-.editorPanel {
-  gap: 20px;
-  background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.88), rgba(245, 248, 250, 0.76)),
-    rgba(255, 255, 255, 0.75);
-}
-
-.formSection {
-  padding: 20px;
-  border-radius: 24px;
-  background: rgba(247, 248, 249, 0.86);
-  border: 1px solid rgba(22, 32, 51, 0.06);
 }
 
 .formSectionHeader {
   align-items: flex-start;
 }
 
-.formSectionHeader strong {
-  color: #24334f;
+.formSectionHeader strong,
+.railCardHeader strong,
+.sidebarBrand h2 {
+  color: #ffffff;
 }
 
 .formGridTwo,
 .formGridThree,
-.formGridFour {
+.formGridFour,
+.memberLookupGrid {
   display: grid;
   gap: 14px;
 }
@@ -431,6 +461,39 @@
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+.memberLookupGrid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  flex: 1;
+}
+
+.lookupItem strong {
+  font-size: 0.98rem;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.memberIdentity {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.memberAvatar {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #a31414, #4d0505);
+  color: #fff3f3;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.emptyApprovalState {
+  color: rgba(255, 255, 255, 0.62);
+}
+
 .editorForm label,
 .authForm label {
   display: grid;
@@ -441,7 +504,7 @@
 .authForm span {
   font-size: 0.86rem;
   font-weight: 700;
-  color: #495771;
+  color: rgba(255, 255, 255, 0.72);
 }
 
 .editorForm input,
@@ -451,10 +514,18 @@
   width: 100%;
   padding: 13px 14px;
   border-radius: 16px;
-  border: 1px solid rgba(31, 42, 64, 0.12);
-  background: rgba(255, 255, 255, 0.92);
-  color: #162033;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: #ffffff;
   font: inherit;
+}
+
+.editorForm input:focus,
+.editorForm select:focus,
+.editorForm textarea:focus,
+.authForm input:focus {
+  outline: 1px solid rgba(255, 107, 107, 0.55);
+  border-color: rgba(255, 107, 107, 0.55);
 }
 
 .checkboxRow {
@@ -468,79 +539,58 @@
   height: 18px;
 }
 
-.placesSection {
-  padding: 20px;
-  border-radius: 24px;
-  background: rgba(240, 244, 248, 0.88);
-}
-
-.placeEditor {
-  padding: 16px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(31, 42, 64, 0.06);
-}
-
-.placeEditorTop {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  align-items: flex-start;
-}
-
 .placeEditorTitle {
   display: block;
-  color: #20304a;
+  color: #ffffff;
   font-size: 1.08rem;
   line-height: 1.2;
 }
 
-.removePlaceButton {
-  border: 1px solid rgba(158, 49, 37, 0.14);
-  border-radius: 999px;
-  padding: 10px 14px;
-  background: rgba(185, 56, 44, 0.08);
-  color: #9e3125;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 180ms ease, transform 180ms ease;
-}
-
-.removePlaceButton:hover {
-  background: rgba(185, 56, 44, 0.14);
-  transform: translateY(-1px);
-}
-
+.removePlaceButton,
 .primaryButton,
 .ghostButton,
 .dangerButton,
 .textButton,
 .authTab,
-.authTabActive {
-  border-radius: 999px;
-  padding: 12px 18px;
+.authTabActive,
+.sidebarToggle,
+.featureItem {
   font-weight: 700;
   cursor: pointer;
 }
 
+.primaryButton,
+.ghostButton,
+.dangerButton,
+.authTab,
+.authTabActive,
+.sidebarToggle {
+  border-radius: 999px;
+  padding: 12px 18px;
+  border: 1px solid transparent;
+}
+
 .primaryButton {
-  background: linear-gradient(135deg, #143c70, #0f5f66);
-  color: #eff7ff;
+  background: linear-gradient(135deg, #ff3434, #7f0707);
+  color: #fff5f5;
 }
 
 .ghostButton,
-.authTab {
-  background: rgba(238, 242, 248, 0.92);
-  color: #23324e;
+.authTab,
+.sidebarToggle {
+  background: rgba(255, 255, 255, 0.05);
+  color: #f3d7d7;
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 .dangerButton,
 .textButton {
-  color: #9e3125;
+  color: #ff8d8d;
 }
 
 .dangerButton {
-  background: rgba(185, 56, 44, 0.12);
+  background: rgba(255, 59, 59, 0.12);
+  border-color: rgba(255, 107, 107, 0.18);
 }
 
 .textButton {
@@ -550,22 +600,70 @@
 }
 
 .authTabActive {
-  background: #172c52;
-  color: #eef6ff;
+  background: linear-gradient(135deg, #ff3434, #7f0707);
+  color: #fff5f5;
 }
 
-@media (max-width: 1180px) {
-  .adminHero,
-  .adminLayout,
+.sidebarSection {
+  display: grid;
+  gap: 10px;
+}
+
+.sidebarHeaderText {
+  display: block;
+  margin-top: 6px;
+}
+
+.rightRail {
+  align-content: start;
+}
+
+.featureItem {
+  width: 100%;
+  text-align: left;
+}
+
+.appFooter {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 22px;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+@media (max-width: 1280px) {
+  .dashboardMain,
+  .heroPanel,
+  .metricGrid,
+  .workspaceBar,
+  .memberLookupGrid,
   .formGridTwo,
   .formGridThree,
   .formGridFour,
-  .statsGrid,
-  .heroMetaGrid,
-  .workspaceBar,
-  .statusCardGrid,
-  .memberLookupGrid {
+  .statusCardGrid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 980px) {
+  .dashboardFrame {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar,
+  .sidebarCollapsed {
+    width: 100%;
+    position: static;
+    max-height: none;
+  }
+
+  .sidebarCollapsed .sidebarHeaderText,
+  .sidebarCollapsed .sidebarSection,
+  .sidebarCollapsed .sidebarBrand,
+  .sidebarCollapsed .roomRow span,
+  .sidebarCollapsed .roomRow small,
+  .sidebarCollapsed .roomRowMeta {
+    display: initial;
   }
 }
 
@@ -580,12 +678,16 @@
     place-items: start center;
   }
 
-  .adminHero,
+  .dashboardBody,
   .sidebar,
   .editorPanel,
   .authPanel,
   .workspaceBar,
-  .approvalPanel {
+  .approvalPanel,
+  .railCard,
+  .heroPanel,
+  .appHeader,
+  .appFooter {
     border-radius: 22px;
     padding: 16px;
   }
@@ -597,16 +699,17 @@
   .formActions,
   .formSectionHeader,
   .memberCard,
-  .placeEditorTop {
+  .placeEditorTop,
+  .appHeader,
+  .headerActions,
+  .appFooter,
+  .sidebarTop {
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .heroBadgeRow {
-    gap: 8px;
-  }
-
-  .memberActions {
+  .profileCard {
+    min-width: 0;
     width: 100%;
   }
 }

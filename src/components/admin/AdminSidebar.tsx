@@ -6,21 +6,57 @@ type Props = {
   selectedRoomId: string;
   loading: boolean;
   userRole: 'admin' | 'superadmin';
+  collapsed: boolean;
+  onToggleCollapse: () => void;
   onSelect: (roomId: string) => void;
   onCreateNew: () => void;
 };
 
-export function AdminSidebar({ rooms, selectedRoomId, loading, userRole, onSelect, onCreateNew }: Props) {
+export function AdminSidebar({
+  rooms,
+  selectedRoomId,
+  loading,
+  userRole,
+  collapsed,
+  onToggleCollapse,
+  onSelect,
+  onCreateNew,
+}: Props) {
   return (
-    <aside className={styles.sidebar}>
+    <aside className={`${styles.sidebar} ${collapsed ? styles.sidebarCollapsed : ''}`}>
+      <div className={styles.sidebarTop}>
+        <button className={styles.sidebarToggle} type="button" onClick={onToggleCollapse}>
+          {collapsed ? 'Open' : 'Close'}
+        </button>
+        {!collapsed ? (
+          <div className={styles.sidebarBrand}>
+            <p className={styles.eyebrow}>Admin panel</p>
+            <h2>Control</h2>
+          </div>
+        ) : null}
+      </div>
+
+      <button className={styles.primaryButton} type="button" onClick={onCreateNew}>
+        {collapsed ? '+' : 'New room'}
+      </button>
+
+      {!collapsed ? (
+        <div className={styles.sidebarSection}>
+          <p className={styles.sectionLabel}>Navigation</p>
+          <div className={styles.sidebarMenu}>
+            <div className={styles.sidebarNavItem}>Dashboard home</div>
+            <div className={styles.sidebarNavItem}>Room editor</div>
+            {userRole === 'superadmin' ? <div className={styles.sidebarNavItem}>Admin approvals</div> : null}
+          </div>
+        </div>
+      ) : null}
+
       <div className={styles.sidebarHeader}>
         <div>
-          <p className={styles.eyebrow}>Inventory</p>
-          <h2>{loading ? 'Loading...' : `${rooms.length} listings`}</h2>
+          {!collapsed ? <p className={styles.eyebrow}>Inventory</p> : null}
+          <h2>{loading ? '...' : `${rooms.length}`}</h2>
+          {!collapsed ? <span className={styles.sidebarHeaderText}>live listings</span> : null}
         </div>
-        <button className={styles.ghostButton} type="button" onClick={onCreateNew}>
-          New room
-        </button>
       </div>
 
       <div className={styles.roomList}>
@@ -28,23 +64,30 @@ export function AdminSidebar({ rooms, selectedRoomId, loading, userRole, onSelec
           <button
             key={room._id}
             type="button"
-            className={`${styles.roomRow} ${selectedRoomId === room._id ? styles.roomRowActive : ''}`}
+            className={`${styles.roomRow} ${selectedRoomId === room._id ? styles.roomRowActive : ''} ${collapsed ? styles.roomRowCompact : ''}`}
             onClick={() => onSelect(room._id)}
+            title={`${room.title} - ${room.locality}, ${room.city}`}
           >
             <div className={styles.roomRowCopy}>
-              <strong>{room.title}</strong>
-              <span>
-                {room.locality}, {room.city}
-              </span>
-              <small>
-                {room.roomType} | {room.occupancy} | {room.seatsLeft} seats left
-              </small>
-              {userRole === 'superadmin' ? <small>Owner: {room.ownerName}</small> : null}
+              <strong>{collapsed ? room.title.slice(0, 1).toUpperCase() : room.title}</strong>
+              {!collapsed ? (
+                <>
+                  <span>
+                    {room.locality}, {room.city}
+                  </span>
+                  <small>
+                    {room.roomType} | {room.occupancy} | {room.seatsLeft} seats left
+                  </small>
+                  {userRole === 'superadmin' ? <small>Owner: {room.ownerName}</small> : null}
+                </>
+              ) : null}
             </div>
-            <div className={styles.roomRowMeta}>
-              {room.featured ? <em className={styles.featuredMark}>Featured</em> : null}
-              <small>Rs. {room.price}</small>
-            </div>
+            {!collapsed ? (
+              <div className={styles.roomRowMeta}>
+                {room.featured ? <em className={styles.featuredMark}>Featured</em> : null}
+                <small>Rs. {room.price}</small>
+              </div>
+            ) : null}
           </button>
         ))}
       </div>
